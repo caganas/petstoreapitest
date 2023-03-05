@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Dynamic;
 using System.Collections.Generic;
+using System.Net;
 
 namespace petstoreapitestapi
 {
@@ -37,12 +38,13 @@ namespace petstoreapitestapi
             var aqq = client.Get(request).Content;
             dynamic json = JsonConvert.DeserializeObject(aqq);
 
-            foreach (var item in json)
-            {
-                if (item["name"] == name)
+                foreach (var item in json)
                 {
-                    return true;
-                }
+                    if (item["name"] == name)
+                    {
+                        return true;
+                    }
+                
             }
             return false;
         }
@@ -68,19 +70,21 @@ namespace petstoreapitestapi
             request.AddJsonBody(bodyjson);
             var aqq = client.Post(request).Content;
             dynamic json = JsonConvert.DeserializeObject(aqq);
-            
-            try
-            {
-                if (json["name"] != null && json["status"] != null)
-                {
-                    return true;
-                }
-                return false;
-            } catch (Exception ex)
-            {
-                return false;
-            }
+            var response = client.Execute(request);
 
+                try
+                {
+                    if (response.StatusCode == HttpStatusCode.OK && json["name"] != null && json["status"] != null)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+                catch (Exception ex)
+                {
+                    return false;
+                }
+            
         }
         public bool putPetSucceed(dynamic status, dynamic name)
         {
@@ -296,6 +300,7 @@ namespace petstoreapitestapi
             request.AddParameter("password", password);
             var aqq = client.Get(request).Content;
             dynamic json = JsonConvert.DeserializeObject(aqq);
+            var response = client.Execute(request);
             if (json["type"] != "error")
             {
                 return true;
